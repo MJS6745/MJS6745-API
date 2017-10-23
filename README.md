@@ -1,301 +1,68 @@
-Rails[![General Assembly Logo](https://camo.githubusercontent.com/1a91b05b8f4d44b5bbfb83abac2b0996d8e26c92/687474703a2f2f692e696d6775722e636f6d2f6b6538555354712e706e67)](https://generalassemb.ly/education/web-development-immersive)
-
-# rails-api-template
-
-A template for starting projects with `rails-api`. Includes authentication.
-
-At the beginning of each cohort, update the versions in [`Gemfile`](Gemfile).
-
-## Dependencies
-
-Install with `bundle install`.
-
--   [`rails-api`](https://github.com/rails-api/rails-api)
--   [`rails`](https://github.com/rails/rails)
--   [`active_model_serializers`](https://github.com/rails-api/active_model_serializers)
--   [`ruby`](https://www.ruby-lang.org/en/)
--   [`postgres`](http://www.postgresql.org)
-
-## Installation
-
-1.  [Download](../../archive/master.zip) this template.
-1.  Unzip and rename the template directory.
-1.  Empty [`README.md`](README.md) and fill with your own content.
-1.  Move into the new project and `git init`.
-1.  Install dependencies with `bundle install`.
-1.  Rename your app module in `config/application.rb` (change
-    `RailsApiTemplate`).
-1.  Rename your project database in `config/database.yml` (change
-    `'rails-api-template'`).
-1.  `git add` and `git commit` your changes.
-1.  Create a `.env` for sensitive settings (`touch .env`).
-1.  Generate new `development` and `test` secrets (`bundle exec rake secret`).
-1.  Store them in `.env` with keys `SECRET_KEY_BASE_<DEVELOPMENT|TEST>`
-    respectively.
-1.  In order to make requests to your deployed API, you will need to set
-    `SECRET_KEY_BASE` in the environment of the production API (using `heroku
-    config:set` or the Heroku dashboard).
-1.  In order to make requests from your deployed client application, you will
-    need to set `CLIENT_ORIGIN` in the environment of the production API (e.g.
-    `heroku config:set CLIENT_ORIGIN=Fhttps://<github-username>.github.io`).
-1.  Setup your database with:
-    - bin/rake db:drop (if it already exists)
-    - bin/rake db:create
-    - bin/rake db:migrate
-    - bin/rake db:seed
-    - bin/rake db:examples
-1.  Run the API server with `bin/rails server` or `bundle exec rails server`.
-
-## Structure
-
-This template follows the standard project structure in Rails.
-
-`curl` command scripts are stored in [`scripts`](scripts) with names that
-correspond to API actions.
-
-User authentication is built-in.
-
-## Tasks
-
-Developers should run these often!
-
--   `bin/rake routes` lists the endpoints available in your API.
--   `bin/rake test` runs automated tests.
--   `bin/rails console` opens a REPL that pre-loads the API.
--   `bin/rails db` opens your database client and loads the correct database.
--   `bin/rails server` starts the API.
--   `scripts/*.sh` run various `curl` commands to test the API. See below.
-
-<!-- TODO -   `rake nag` checks your code style. -->
-<!-- TODO -   `rake lint` checks your code for syntax errors. -->
-
-## API
-
-Use this as the basis for your own API documentation. Add a new third-level
-heading for your custom entities, and follow the pattern provided for the
-built-in user authentication documentation.
-
-Scripts are included in [`scripts`](scripts) to test built-in actions. Add your
-own scripts to test your custom API. As an alternative, you can write automated
-tests in RSpec to test your API.
-
-### Authentication
-
-| Verb   | URI Pattern            | Controller#Action |
-|--------|------------------------|-------------------|
-| POST   | `/sign-up`             | `users#signup`    |
-| POST   | `/sign-in`             | `users#signin`    |
-| PATCH  | `/change-password/:id` | `users#changepw`  |
-| DELETE | `/sign-out/:id`        | `users#signout`   |
-
-#### POST /sign-up
-
-Request:
-
-```sh
-curl http://localhost:4741/sign-up \
-  --include \
-  --request POST \
-  --header "Content-Type: application/json" \
-  --data '{
-    "credentials": {
-      "email": "'"${EMAIL}"'",
-      "password": "'"${PASSWORD}"'",
-      "password_confirmation": "'"${PASSWORD}"'"
-    }
-  }'
-```
-
-```sh
-EMAIL=ava@bob.com PASSWORD=hannah scripts/sign-up.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 201 Created
-Content-Type: application/json; charset=utf-8
-
-{
-  "user": {
-    "id": 1,
-    "email": "ava@bob.com"
-  }
-}
-```
-
-#### POST /sign-in
-
-Request:
-
-```sh
-curl http://localhost:4741/sign-in \
-  --include \
-  --request POST \
-  --header "Content-Type: application/json" \
-  --data '{
-    "credentials": {
-      "email": "'"${EMAIL}"'",
-      "password": "'"${PASSWORD}"'"
-    }
-  }'
-```
-
-```sh
-EMAIL=ava@bob.com PASSWORD=hannah scripts/sign-in.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "user": {
-    "id": 1,
-    "email": "ava@bob.com",
-    "token": "BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f"
-  }
-}
-```
-
-#### PATCH /change-password/:id
-
-Request:
-
-```sh
-curl --include --request PATCH "http://localhost:4741/change-password/$ID" \
-  --header "Authorization: Token token=$TOKEN" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "passwords": {
-      "old": "'"${OLDPW}"'",
-      "new": "'"${NEWPW}"'"
-    }
-  }'
-```
-
-```sh
-ID=1 OLDPW=hannah NEWPW=elle TOKEN=BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f scripts/change-password.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 204 No Content
-```
-
-#### DELETE /sign-out/:id
-
-Request:
-
-```sh
-curl http://localhost:4741/sign-out/$ID \
-  --include \
-  --request DELETE \
-  --header "Authorization: Token token=$TOKEN"
-```
-
-```sh
-ID=1 TOKEN=BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f scripts/sign-out.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 204 No Content
-```
-
-### Users
-
-| Verb | URI Pattern | Controller#Action |
-|------|-------------|-------------------|
-| GET  | `/users`    | `users#index`     |
-| GET  | `/users/1`  | `users#show`      |
-
-#### GET /users
-
-Request:
-
-```sh
-curl http://localhost:4741/users \
-  --include \
-  --request GET \
-  --header "Authorization: Token token=$TOKEN"
-```
-
-```sh
-TOKEN=BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f scripts/users.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "users": [
-    {
-      "id": 2,
-      "email": "bob@ava.com"
-    },
-    {
-      "id": 1,
-      "email": "ava@bob.com"
-    }
-  ]
-}
-```
-
-#### GET /users/:id
-
-Request:
-
-```sh
-curl --include --request GET http://localhost:4741/users/$ID \
-  --header "Authorization: Token token=$TOKEN"
-```
-
-```sh
-ID=2 TOKEN=BAhJIiVlZDIwZTMzMzQzODg5NTBmYjZlNjRlZDZlNzYxYzU2ZAY6BkVG--7e7f77f974edcf5e4887b56918f34cd9fe293b9f scripts/user.sh
-```
-
-Response:
-
-```md
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "user": {
-    "id": 2,
-    "email": "bob@ava.com"
-  }
-}
-```
-
-### Reset Database without dropping
-
-This is not a task developers should run often, but it is sometimes necessary.
-
-**locally**
-
-```sh
-bin/rake db:migrate VERSION=0
-bin/rake db:migrate db:seed db:examples
-```
-
-**heroku**
-
-```sh
-heroku run rake db:migrate VERSION=0
-heroku run rake db:migrate db:seed db:examples
-```
-
-## [License](LICENSE)
-
-1.  All content is licensed under a CC­BY­NC­SA 4.0 license.
-1.  All software code is licensed under GNU GPLv3. For commercial use or
-    alternative licensing, please contact legal@ga.co.
+# Workout Tracker - API repo
+
+This is the repo for the API I built for a Workout tracker that I developed for the WDI full stack application project. It was developed primarily using Ruby on Rails. Links are included below to the production front end, the front end repo, as well as the prod URL for the API.
+- [Workout Tracker](https://mjs6745.github.io/MJS6745-fullstack-frontend/)
+- [Front End Repo](https://github.com/MJS6745/MJS6745-fullstack-frontend)
+- [Back End API Prod URL](https://cryptic-reef-91253.herokuapp.com/)
+
+## Overview
+
+This application allows for users to create a profile and track their workouts over time. The app allows users to capture data including the date, duration, intensity/difficulty, and additional descriptive information about each workout. In addition, users can edit and delete workouts that they have created for themselves.
+
+In regards to the API, it is built to allow for the creation and management of both users and workouts. A single user can be linked to many workouts and any given workout belongs to a single user. A workout can be thought of as a single workout session in which the user logs information about their workout including the date, duration, difficulty, time of day, type of workout, and a description of the workout.
+
+The user resource has the following possible actions:
+- Create a new user with a password
+- Sign in as a user
+- Sign out as a user
+- Change the users password once signed in
+
+The workout resource has the following possible actions. Note again that a workout belongs to a user. So, on the front end, the user is required to sign in before they can take any of the following actions.
+- Create a new workout
+- Get a list of their workouts (a user is only presented with a list of the workouts for which they were the creator)
+- Edit a workout
+- Delete a workout
+
+For information regarding the setup of the front end of the application, please visit the front end repo (link in previous section).
+
+## Technologies Used
+
+The API made use of the following technologies:
+- Ruby
+- Rails
+
+## Unsolved Problems
+
+While there aren't any major problems present in the API that require attention I see opportunity for expanding the resources used by the application.
+
+Presently there is one resource (workout) linked to a user. Each workout is essentially a description of a workout on a given date. I see an opportunity to break apart the workout resource a little further so that the description of each workout can be used as a template for future workouts.
+
+So, for example, let's say that a user has 3 workouts over the course of a month in which that user ran 3 miles. Presently, the application stores those 3 workouts as 3 indepdent instances. I see an opportunity to break out the workouts as templates from which a user could select what wourkout they completed. This is essentially the V2 version of my application (see link to ERD in next section).
+
+Breaking these workout "templates" into their own separate resource would also allow for the inclusion of functionality such as a workout generator. This could present the user with a random workout idea from the list of templates if they were having a hard time deciding how they wanted to workout.
+
+## Planning and Development Process
+
+This section will focus on the planning process used specifically for the API. For information on the planning process for the front end of the application, please visit that repo (link in first section above).
+
+The planning for the API started with a general brainstorming session of what I wanted the application to accomplish. I wanted to be sure I understood the desired end result of the MVP version of the application before I started on anything. This vision for the functionality was critical as it drove my design process for the resources I needed to build out. I also spent time during this part of the process thoroughly defining what types of data I wanted the workout resource to include.
+
+Once I had decided on the MVP application design, I proceeded to build out my Entity Relationship Diagram (aka ERD, link included below). This helped me to design the relationship between users and their workouts. The MVP version of the application was to be built with users and a single resource in mind, workouts. This relationship allowed for users to have multiple workouts and track them over time.
+
+After the design was completed, I scaffolded my workout resource and tested the various actions for the resource via curl scripts. At this point, the resource did not have a relationship to a user but it still allowed me to make sure that the necessary actions/routes functioned as expected. As issues arose I worked to troubleshoot and address them (more details on problem solving strategy in next section).
+
+Once the workout resource was working correctly, I linked the resource to a user. This created the relationship where a user could have many workouts and a workout belonged to a single user. The various actions for both the workout resource and the users were tested thoroughly via curl scripts and the front end to ensure they behaved as expected.
+
+This process ultimately gave me the structure around which I was able to build the remainder of my front end functionality.
+
+- [ERD](https://git.generalassemb.ly/MJS6745/full-stack-project-practice/blob/response/attachments/ERD_V1.pptx)
+
+## Problem-Solving Strategy
+
+My approach for development of the API was to keep each piece of work as small as possible in order to limit scope and stay methodical. I would tend to focus on one resource and one action at a time. For example, I would focus on the sign up (create) functionality for the users, test/commit those changes, and then move onto the next piece.
+
+This approach allowed my problem solving to stay limited in scope as well. Ultimately this led to troubleshooting being relatively less stressful and difficult than it would have been had I waited to test everything at the end or built in code in much larger pieces.
+
+I also worked closely with the front end of the application to understand the root cause of any issue that came up. I wanted to make sure I understood if the problem was coming from the front end code or if it truly was an issue with the API. For example, when an issue arose that did not allow me to create a new workout, I first checked the front end functionality to ensure that everything from that side was being passed as expected. Then, I was able to dig into what might be causing the issue in the API.
+
+Overall, this methodical approach to development and testing allowed me to confidently build, test, and troubleshoot seamlessly thoughout the construction of my application.
