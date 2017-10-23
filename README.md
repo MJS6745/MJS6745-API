@@ -55,7 +55,8 @@ Once the workout resource was working correctly, I linked the resource to a user
 
 This process ultimately gave me the structure around which I was able to build the remainder of my front end functionality.
 
-- [ERD](https://git.generalassemb.ly/MJS6745/full-stack-project-practice/blob/response/attachments/ERD_V1.pptx)
+- [MVP ERD](https://git.generalassemb.ly/MJS6745/full-stack-project-practice/blob/response/attachments/ERD%20MVP.png)
+- [V2 ERD](https://git.generalassemb.ly/MJS6745/full-stack-project-practice/blob/response/attachments/ERD%20V2.png)
 
 ## Problem-Solving Strategy
 
